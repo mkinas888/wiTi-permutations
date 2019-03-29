@@ -28,6 +28,11 @@ public:
         sum = 0;
         id = 0;
     }
+
+    Sum (int _id, int _sum) {
+        id = _id;
+        sum = _sum;
+    }
 };
 
 class Subtotal {
@@ -48,7 +53,7 @@ void swapTasks(int task1Id, int task2Id, Task taskTable[]) {
     taskTable[task2Id] = temp;
 }
 
-int N = 0;
+int N = 0, OPT = 0;
 
 
 void countC (int n, Task taskTable[]) {
@@ -118,15 +123,14 @@ int checkWhichPowerOfTwo(int number) {
     return id;
 }
 
-int findOptimalWITI(int n, Task taskTable[]) {
+void findOptimalWITI(int n, Task taskTable[]) {
     int order[n-1];
     int initialSumNum = n, initialId = 0, elem;
     for(int i=0, b=1; i<n; i++, b*=2) {
         initialId += b;
     }
-    int C, N = 1 << n, stepsCounter = 0, current, stepId;
-    cout << N << endl;
-    Subtotal steps[N];
+    int C, N = 1 << n, stepsCounter = 0, current;
+    Subtotal * steps = new Subtotal[N];
     steps[0].sumMin = 0;
     steps[0].id = 0;
     for(int set = 1; set < N; set++) {
@@ -148,11 +152,8 @@ int findOptimalWITI(int n, Task taskTable[]) {
             }
         }
         steps[set].sumNum = stepsCounter; 
-        // cout << "id:  " << steps[set].id << endl;
-        // for(int i=0;i<steps[set].sumNum;i++) {
-        //     cout << steps[set].sums[i] << endl;
-        // }
     }  
+
     int parsedOrder = steps[N-1].id, tmp = 0;
     for(int i=n-1;i>=0;i--) {
         for(int x=N-1;x>=0;x--) {
@@ -177,29 +178,35 @@ int findOptimalWITI(int n, Task taskTable[]) {
         cout << order[i] << " ";
     }    
     cout << endl;
-    return steps[N-1].sumMin; 
+    cout << steps[N-1].sumMin << endl;
+    OPT = steps[N-1].sumMin;
+    delete [] steps;
 }
+
+
 
 int main () {
     ifstream data;
     data.open("witi.data.txt");
-    int n, opt;
+    int n;
     string str;
-    while(str != "data.15:") {
+    string dataNames[] = {"data.10:", "data.11:", "data.12:", "data.13:", "data.14:","data.15:",
+                          "data.16:", "data.17:", "data.18:", "data.19:", "data.20:" };
+    for(int i=0;i<11;i++) {
+        while(str != dataNames[i]) {
+            data >> str;
+        }
         data >> str;
-    }
-    data >> str;
-    n = stoi(str);
-    Task taskTable[n-1];
-    // load dataset to taskTable
-    for(int i=0;i<n;i++) {
-        data >> taskTable[i].p >> taskTable[i].w >> taskTable[i].d;
-        taskTable[i].id = i+1;
-    } 
-
-    opt = findOptimalWITI(n, taskTable);
-    cout << opt << endl;
-    
-    // findPermutations(n, 0, opt, taskTable);
-    
+        n = stoi(str);
+        Task taskTable[n-1];
+        // load dataset to taskTable
+        for(int i=0;i<n;i++) {
+            data >> taskTable[i].p >> taskTable[i].w >> taskTable[i].d;
+            taskTable[i].id = i+1;
+        } 
+        cout << dataNames[i] << endl;
+        findOptimalWITI(n, taskTable);
+        cout << endl;
+        // findPermutations(n, 0, OPT, taskTable);
+    }    
 }
